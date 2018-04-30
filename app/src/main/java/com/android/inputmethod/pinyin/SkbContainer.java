@@ -260,8 +260,7 @@ public class SkbContainer extends RelativeLayout implements OnTouchListener {
     }
 
     private void updateSkbLayout() {
-        int screenWidth = mEnvironment.getScreenWidth();
-        int keyHeight = mEnvironment.getKeyHeight();
+        int skbWidth = mEnvironment.getSkbWidth();
         int skbHeight = mEnvironment.getSkbHeight();
 
         Context mContext = getContext();
@@ -277,27 +276,27 @@ public class SkbContainer extends RelativeLayout implements OnTouchListener {
         switch (mSkbLayout) {
         case R.xml.skb_qwerty:
             majorSkb = skbPool.getSoftKeyboard(R.xml.skb_qwerty,
-                    R.xml.skb_qwerty, screenWidth, skbHeight, mContext);
+                    R.xml.skb_qwerty, skbWidth, skbHeight, mContext);
             break;
 
         case R.xml.skb_sym1:
             majorSkb = skbPool.getSoftKeyboard(R.xml.skb_sym1, R.xml.skb_sym1,
-                    screenWidth, skbHeight, mContext);
+                    skbWidth, skbHeight, mContext);
             break;
 
         case R.xml.skb_sym2:
             majorSkb = skbPool.getSoftKeyboard(R.xml.skb_sym2, R.xml.skb_sym2,
-                    screenWidth, skbHeight, mContext);
+                    skbWidth, skbHeight, mContext);
             break;
 
         case R.xml.skb_smiley:
             majorSkb = skbPool.getSoftKeyboard(R.xml.skb_smiley,
-                    R.xml.skb_smiley, screenWidth, skbHeight, mContext);
+                    R.xml.skb_smiley, skbWidth, skbHeight, mContext);
             break;
 
         case R.xml.skb_phone:
             majorSkb = skbPool.getSoftKeyboard(R.xml.skb_phone,
-                    R.xml.skb_phone, screenWidth, skbHeight, mContext);
+                    R.xml.skb_phone, skbWidth, skbHeight, mContext);
             break;
         default:
         }
@@ -352,7 +351,7 @@ public class SkbContainer extends RelativeLayout implements OnTouchListener {
 
             if (null == mPopupSkbView) {
                 mPopupSkbView = new SoftKeyboardView(mContext, null);
-                mPopupSkbView.onMeasure(LayoutParams.WRAP_CONTENT,
+                mPopupSkbView.measure(LayoutParams.WRAP_CONTENT,
                         LayoutParams.WRAP_CONTENT);
             }
             mPopupSkbView.setOnTouchListener(this);
@@ -416,7 +415,7 @@ public class SkbContainer extends RelativeLayout implements OnTouchListener {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         Environment env = Environment.getInstance();
-        int measuredWidth = env.getScreenWidth();
+        int measuredWidth = env.getSkbWidth();
         int measuredHeight = getPaddingTop();
         measuredHeight += env.getSkbHeight();
         widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth,

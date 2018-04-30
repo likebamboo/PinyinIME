@@ -102,7 +102,8 @@ public class Environment {
     private int mNormalBalloonTextSize;
     private int mFunctionBalloonTextSize;
     private Configuration mConfig = new Configuration();
-    private boolean mDebug = false;
+    private boolean mDebug = true;
+    private short cutout;
 
     private Environment() {
     }
@@ -112,6 +113,14 @@ public class Environment {
             mInstance = new Environment();
         }
         return mInstance;
+    }
+
+    public short getCutout() {
+        return cutout;
+    }
+
+    public void setCutout(short cutout) {
+        this.cutout = cutout;
     }
 
     public void onConfigurationChanged(Configuration newConfig, Context context) {
@@ -153,6 +162,11 @@ public class Environment {
 
     public int getScreenHeight() {
         return mScreenHeight;
+    }
+
+    public int getSkbWidth() {
+        boolean isLand = mConfig.orientation == Configuration.ORIENTATION_LANDSCAPE;
+        return mScreenWidth - (isLand ? cutout : 0);
     }
 
     public int getHeightForCandidates() {

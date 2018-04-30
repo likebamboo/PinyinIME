@@ -415,7 +415,7 @@ public class BalloonHint extends PopupWindow {
                 measuredHeight = heightSize;
             }
 
-            int maxWidth = Environment.getInstance().getScreenWidth() -
+            int maxWidth = Environment.getInstance().getSkbWidth() -
                     getPaddingLeft() - getPaddingRight();
             if (measuredWidth > maxWidth) {
                 measuredWidth = maxWidth;

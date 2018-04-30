@@ -16,6 +16,7 @@
 
 package com.android.inputmethod.pinyin;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -29,13 +30,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.MeasureSpec;
@@ -196,6 +200,69 @@ public class PinyinIME extends InputMethodService {
 
         mEnvironment.onConfigurationChanged(getResources().getConfiguration(),
                 this);
+        final View decorView = getWindow().getWindow().getDecorView();
+        if (decorView != null) {
+            decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    getCutout();
+                }
+            });
+        }
+    }
+
+    @SuppressLint("DefaultLocale")
+    private void getCutout() {
+        if (getWindow() == null || getWindow().getWindow() == null) {
+            System.out.println("wentaoli null ");
+            return;
+        }
+        View decorView = getWindow().getWindow().getDecorView();
+        Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        // 如果是竖屏，不处理
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            int metricsHeight = metrics.heightPixels;
+            int decorHeight = decorView.getMeasuredHeight();
+            System.out.println(String.format("wentaoli, orientation is portrait decorView height = %d, metrics's heightPixels = %d", decorHeight, metricsHeight));
+        } else {
+            // 如果是横屏
+            int metricsWidth = metrics.widthPixels;
+            int decorWidth = decorView.getMeasuredWidth();
+            int cutout = metricsWidth - decorWidth;
+            System.out.println(String.format("wentaoli， decorView width = %d, metrics's widthPixels = %d, and cutout width = %d ", decorWidth, metricsWidth, cutout));
+            onCutoutRequired((short) cutout);
+        }
+    }
+
+    @Override
+    public void onWindowShown() {
+        super.onWindowShown();
+        System.out.println("wentaoli ====== onWindowShown");
+    }
+
+    @Override
+    public void onComputeInsets(Insets outInsets) {
+        super.onComputeInsets(outInsets);
+        System.out.println("wentaoli ===== onComputInsets ");
+    }
+
+    @Override
+    public void onInitializeInterface() {
+        super.onInitializeInterface();
+        System.out.println("wentaoli ===== onInitializeInterface ");
+    }
+
+    /**
+     * 更新cutout
+     */
+    void onCutoutRequired(short cutout) {
+        if (cutout == mEnvironment.getCutout()) {
+            return;
+        }
+        mEnvironment.setCutout(cutout);
+        onConfigurationChanged(mEnvironment.getConfiguration());
     }
 
     @Override
@@ -1116,6 +1183,13 @@ public class PinyinIME extends InputMethodService {
     }
 
     @Override
+    public void setInputView(View view) {
+        Log.d(TAG, "before setInputView.");
+        super.setInputView(view);
+        Log.d(TAG, "after setInputView.");
+    }
+
+    @Override
     public void onStartInputView(EditorInfo editorInfo, boolean restarting) {
         if (mEnvironment.needDebug()) {
             Log.d(TAG, "onStartInputView " + " contentType: "
@@ -1155,7 +1229,8 @@ public class PinyinIME extends InputMethodService {
         super.onFinishCandidatesView(finishingInput);
     }
 
-    @Override public void onDisplayCompletions(CompletionInfo[] completions) {
+    @Override
+    public void onDisplayCompletions(CompletionInfo[] completions) {
         if (!isFullscreenMode()) return;
         if (null == completions || completions.length <= 0) return;
         if (null == mSkbContainer || !mSkbContainer.isShown()) return;
